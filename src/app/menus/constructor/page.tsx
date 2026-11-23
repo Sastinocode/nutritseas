@@ -3,10 +3,10 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { ALIMENTOS, GRUPOS, type Alimento } from "@/data/alimentos";
 import { PERFILES, type Perfil } from "@/data/perfiles";
-import { calcNutri, semaforo, type MenuItem, type NutriTotal, type SemaforoResult } from "@/lib/constructor";
+import { calcNutri, semaforo, buildMenuCode, type MenuItem, type NutriTotal, type SemaforoResult } from "@/lib/constructor";
 import { calcularObjetivo, FACTORES_ACTIVIDAD } from "@/lib/nutricion";
 import { useNutriStore } from "@/lib/store";
-import { ChevronLeft, X, Search, Plus, Minus, ChefHat, ChevronDown, ClipboardCheck, User } from "lucide-react";
+import { ChevronLeft, X, Search, Plus, Minus, ChefHat, ChevronDown, ClipboardCheck, User, Share2, Copy, Check } from "lucide-react";
 
 const MICROS_REF: { key: keyof NutriTotal; label: string; unit: string; ref: number }[] = [
   { key: "fe",  label: "Hierro",   unit: "mg", ref: 14 },
@@ -137,6 +137,11 @@ export default function ConstructorPage() {
   const [pmMeta, setPmMeta] = useState<"mantenimiento" | "deficit" | "superavit">("mantenimiento");
   const [pmRestricciones, setPmRestricciones] = useState<string[]>([]);
 
+  // Paso 6 – Entrega al profe
+  const [nombreParaEntrega, setNombreParaEntrega] = useState(() => perfilAlumno.nombre || "");
+  const [codigoEntrega, setCodigoEntrega] = useState("");
+  const [copiado, setCopiado] = useState(false);
+
   function seleccionarPerfil(p: Perfil) {
     setSlots(getSlots(p.comidas).map(([nombre, emoji]) => ({ nombre, emoji, items: [] })));
     setPerfil(p);
@@ -187,6 +192,15 @@ export default function ConstructorPage() {
     setSlots(prev => prev.map((s, i) =>
       i !== si ? s : { ...s, items: s.items.filter((_, j) => j !== ii) }
     ));
+  }
+
+  function generarCodigo() {
+    if (!perfil || todosLosItems.length === 0) return;
+    const fecha = new Date().toISOString().split("T")[0];
+    const items = todosLosItems.map(i => ({ alimentoId: i.alimento.id, gramos: i.gramos }));
+    const code = buildMenuCode(nombreParaEntrega.trim() || "Alumno", perfil.id, fecha, items, justificacion);
+    setCodigoEntrega(code);
+    setCopiado(false);
   }
 
   function handleParaMiSubmit() {
@@ -802,6 +816,59 @@ export default function ConstructorPage() {
                       );
                     })}
                   </div>
+                </div>
+              )}
+
+              {/* Sección de entrega al profe */}
+              {todosLosItems.length > 0 && (
+                <div className="rounded-xl border p-4 space-y-3" style={{ borderColor: "var(--nt-line)", background: "var(--nt-card)" }}>
+                  <div className="flex items-center gap-2">
+                    <Share2 size={15} style={{ color: "var(--nt-mid)" }} />
+                    <span className="text-xs font-semibold" style={{ color: "var(--nt-dark)" }}>Entregar al profe</span>
+                  </div>
+                  <div>
+                    <label className="text-xs block mb-1" style={{ color: "var(--nt-soft)" }}>Tu nombre</label>
+                    <input
+                      type="text"
+                      value={nombreParaEntrega}
+                      onChange={e => { setNombreParaEntrega(e.target.value); setCodigoEntrega(""); }}
+                      placeholder="Escribe tu nombre"
+                      className="w-full text-sm rounded-lg px-3 py-2 outline-none"
+                      style={{ background: "var(--nt-bg)", border: "1px solid var(--nt-line)", color: "var(--nt-dark)" }}
+                    />
+                  </div>
+                  <button
+                    onClick={generarCodigo}
+                    className="w-full py-2.5 text-sm font-semibold rounded-xl"
+                    style={{ background: "var(--nt-mid)", color: "#fff" }}
+                  >
+                    Generar código de entrega
+                  </button>
+                  {codigoEntrega && (
+                    <>
+                      <textarea
+                        readOnly
+                        value={codigoEntrega}
+                        rows={3}
+                        className="w-full text-xs rounded-xl p-3 outline-none resize-none font-mono"
+                        style={{ background: "var(--nt-bg)", border: "1px solid var(--nt-line)", color: "var(--nt-dark)" }}
+                      />
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(codigoEntrega);
+                          setCopiado(true);
+                          setTimeout(() => setCopiado(false), 2500);
+                        }}
+                        className="w-full py-2 text-xs font-medium rounded-lg flex items-center justify-center gap-2"
+                        style={{ background: copiado ? "var(--nt-g)" : "var(--nt-dark)", color: "#fff" }}
+                      >
+                        {copiado ? <><Check size={14} /> Copiado</> : <><Copy size={14} /> Copiar código</>}
+                      </button>
+                      <p className="text-xs" style={{ color: "var(--nt-soft)" }}>
+                        Envía este código a tu profesor por WhatsApp, email o como te indique.
+                      </p>
+                    </>
+                  )}
                 </div>
               )}
 
