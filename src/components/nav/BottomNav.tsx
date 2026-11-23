@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, BookOpen, UtensilsCrossed, FlaskConical, Trophy } from "lucide-react";
+import { Home, BookOpen, UtensilsCrossed, FlaskConical, Trophy, GraduationCap } from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/",             label: "Inicio",       Icon: Home           },
@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { href: "/menus",        label: "Menús",        Icon: UtensilsCrossed},
   { href: "/suplementos",  label: "Suplementos",  Icon: FlaskConical   },
   { href: "/retos",        label: "Retos",        Icon: Trophy         },
+  { href: "/clase",        label: "Clase",        Icon: GraduationCap  },
 ];
 
 export function BottomNav() {
