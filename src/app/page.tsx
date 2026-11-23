@@ -1,69 +1,98 @@
-import Image from "next/image";
+import Link from "next/link";
+import { BookOpen, UtensilsCrossed, FlaskConical, Trophy, GraduationCap, Calculator } from "lucide-react";
 
-export default function Home() {
+const MODULOS = [
+  {
+    href: "/aprende",
+    emoji: "📚",
+    Icon: BookOpen,
+    titulo: "Aprende",
+    descripcion: "Nutrientes, macros, micros e hidratación. La base que necesitas."
+  },
+  {
+    href: "/menus",
+    emoji: "🍽️",
+    Icon: UtensilsCrossed,
+    titulo: "Menús y timing",
+    descripcion: "Platos de ejemplo, timing de entreno y guía para competición."
+  },
+  {
+    href: "/suplementos",
+    emoji: "💊",
+    Icon: FlaskConical,
+    titulo: "Suplementos",
+    descripcion: "Semáforo de evidencia, checklist y detector de bulos."
+  },
+  {
+    href: "/retos",
+    emoji: "🏆",
+    Icon: Trophy,
+    titulo: "Retos y quiz",
+    descripcion: "Pon a prueba lo aprendido con 15 preguntas y el juego de mitos."
+  },
+  {
+    href: "/calcular",
+    emoji: "🧮",
+    Icon: Calculator,
+    titulo: "Calcula",
+    descripcion: "Tu gasto energético y macros con la fórmula Mifflin-St Jeor."
+  },
+  {
+    href: "/clase",
+    emoji: "🎓",
+    Icon: GraduationCap,
+    titulo: "Clase",
+    descripcion: "Modo profesor: presentaciones y recursos para el aula."
+  }
+];
+
+export default function HomePage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="max-w-2xl mx-auto px-4 py-6">
+      {/* Hero */}
+      <div
+        className="rounded-2xl px-5 py-6 mb-6"
+        style={{
+          background: "linear-gradient(135deg, var(--nt-dark), var(--nt-mid))",
+          color: "#fff"
+        }}
+      >
+        <p className="text-xs font-semibold tracking-widest uppercase opacity-75 mb-1">
+          TSEAS 26/27 · UD6
+        </p>
+        <h1 className="text-2xl font-bold leading-tight mb-1">Come bien, rinde más</h1>
+        <p className="text-sm opacity-80">
+          Nutrición deportiva y suplementación para el ciclo TSEAS. Sin registro, sin instalar nada.
+        </p>
+      </div>
+
+      {/* Módulos */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {MODULOS.map(({ href, emoji, titulo, descripcion }) => (
+          <Link
+            key={href}
+            href={href}
+            className="rounded-xl border p-4 flex flex-col gap-1 transition-colors hover:border-[var(--nt-mid)]"
+            style={{
+              background: "var(--nt-card)",
+              borderColor: "var(--nt-line)"
+            }}
           >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+            <span className="text-2xl">{emoji}</span>
+            <strong style={{ color: "var(--nt-dark)" }}>{titulo}</strong>
+            <span className="text-sm" style={{ color: "var(--nt-soft)" }}>{descripcion}</span>
+          </Link>
+        ))}
+      </div>
+
+      {/* Aviso */}
+      <p
+        className="text-xs mt-6 text-center"
+        style={{ color: "var(--nt-soft)" }}
+      >
+        Orientativo para adultos sanos. No sustituye a un médico o dietista-nutricionista.
+        Los datos que introduces quedan solo en tu dispositivo.
+      </p>
     </div>
   );
 }

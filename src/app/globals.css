@@ -1,26 +1,113 @@
 @import "tailwindcss";
 
+/* ── Tokens de diseño NutriTSEAS ── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Paleta identidad: morado módulo Valoración */
+  --nt-dark:   #5B2C6F;
+  --nt-mid:    #8E44AD;
+  --nt-light:  #F4ECF7;
+  --nt-bg:     #FBF8FC;
+  --nt-card:   #FFFFFF;
+  --nt-ink:    #26202B;
+  --nt-soft:   #6B6273;
+  --nt-line:   #E3D8E9;
+
+  /* Semáforos: verde / ámbar / rojo */
+  --nt-g:      #2E7D32;
+  --nt-gbg:    #E8F5E9;
+  --nt-a:      #B7791F;
+  --nt-abg:    #FFF4D6;
+  --nt-r:      #C0392B;
+  --nt-rbg:    #FDEDEC;
+
+  /* Macros: colores fijos, nunca cambian */
+  --nt-carb:   #F9A825;
+  --nt-prot:   #E64A19;
+  --nt-fat:    #1E88E5;
+
+  /* Verde saludable (acción y kcal) */
+  --nt-green:  #43A047;
+
+  /* Superficie */
+  --background: var(--nt-bg);
+  --foreground: var(--nt-ink);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --nt-dark:  #C9A0DC;
+    --nt-mid:   #B67BD3;
+    --nt-light: #2B2033;
+    --nt-bg:    #161119;
+    --nt-card:  #211A27;
+    --nt-ink:   #F1EAF5;
+    --nt-soft:  #B2A6BA;
+    --nt-line:  #3A2E43;
+    --nt-gbg:   #1B3320;
+    --nt-abg:   #3A2E10;
+    --nt-rbg:   #3A1B18;
+    --nt-g:     #7FD68A;
+    --nt-a:     #F0C060;
+    --nt-r:     #F28B82;
+    --background: var(--nt-bg);
+    --foreground: var(--nt-ink);
+  }
+}
+
+:root[data-theme="dark"] {
+  --nt-dark:  #C9A0DC;
+  --nt-mid:   #B67BD3;
+  --nt-light: #2B2033;
+  --nt-bg:    #161119;
+  --nt-card:  #211A27;
+  --nt-ink:   #F1EAF5;
+  --nt-soft:  #B2A6BA;
+  --nt-line:  #3A2E43;
+  --nt-gbg:   #1B3320;
+  --nt-abg:   #3A2E10;
+  --nt-rbg:   #3A1B18;
+  --nt-g:     #7FD68A;
+  --nt-a:     #F0C060;
+  --nt-r:     #F28B82;
+  --background: var(--nt-bg);
+  --foreground: var(--nt-ink);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-nt-dark:    var(--nt-dark);
+  --color-nt-mid:     var(--nt-mid);
+  --color-nt-light:   var(--nt-light);
+  --color-nt-card:    var(--nt-card);
+  --color-nt-ink:     var(--nt-ink);
+  --color-nt-soft:    var(--nt-soft);
+  --color-nt-line:    var(--nt-line);
+  --color-nt-g:       var(--nt-g);
+  --color-nt-gbg:     var(--nt-gbg);
+  --color-nt-a:       var(--nt-a);
+  --color-nt-abg:     var(--nt-abg);
+  --color-nt-r:       var(--nt-r);
+  --color-nt-rbg:     var(--nt-rbg);
+  --color-nt-carb:    var(--nt-carb);
+  --color-nt-prot:    var(--nt-prot);
+  --color-nt-fat:     var(--nt-fat);
+  --color-nt-green:   var(--nt-green);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--nt-bg);
+  color: var(--nt-ink);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  line-height: 1.5;
+  font-size: 16px;
+  margin: 0;
 }
+
+/* Scrollbar fina en Firefox */
+* { scrollbar-width: thin; }
