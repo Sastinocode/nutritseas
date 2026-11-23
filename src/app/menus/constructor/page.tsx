@@ -3,8 +3,8 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { ALIMENTOS, GRUPOS, type Alimento } from "@/data/alimentos";
 import { PERFILES, type Perfil } from "@/data/perfiles";
-import { calcNutri, type MenuItem, type NutriTotal } from "@/lib/constructor";
-import { ChevronLeft, X, Search, Plus, Minus, ChefHat, ChevronDown } from "lucide-react";
+import { calcNutri, semaforo, type MenuItem, type NutriTotal, type SemaforoResult } from "@/lib/constructor";
+import { ChevronLeft, X, Search, Plus, Minus, ChefHat, ChevronDown, ClipboardCheck } from "lucide-react";
 
 const MICROS_REF: { key: keyof NutriTotal; label: string; unit: string; ref: number }[] = [
   { key: "fe",  label: "Hierro",   unit: "mg", ref: 14 },
@@ -79,6 +79,8 @@ export default function ConstructorPage() {
   const [busqueda, setBusqueda] = useState("");
   const [grupoFiltro, setGrupoFiltro] = useState("");
   const [detalle, setDetalle] = useState(false);
+  const [justificacion, setJustificacion] = useState("");
+  const [mostrarReto, setMostrarReto] = useState(false);
 
   function seleccionarPerfil(p: Perfil) {
     setSlots(getSlots(p.comidas).map(([nombre, emoji]) => ({ nombre, emoji, items: [] })));
@@ -91,6 +93,10 @@ export default function ConstructorPage() {
     [slots],
   );
   const total = useMemo(() => calcNutri(todosLosItems), [todosLosItems]);
+  const retoResult = useMemo<SemaforoResult | null>(
+    () => perfil ? semaforo(todosLosItems, total, perfil, justificacion) : null,
+    [todosLosItems, total, perfil, justificacion],
+  );
 
   const alimentosFiltrados = useMemo(() => ALIMENTOS.filter(a => {
     if (grupoFiltro && a.grupo !== grupoFiltro) return false;
@@ -386,6 +392,16 @@ export default function ConstructorPage() {
           </div>
         )}
 
+        {/* Botón Evaluar */}
+        <button
+          onClick={() => { setSelectorAbierto(false); setMostrarReto(true); }}
+          className="w-full flex items-center justify-center gap-2 py-3 text-sm font-semibold rounded-xl"
+          style={{ background: "var(--nt-dark)", color: "#fff" }}
+        >
+          <ClipboardCheck size={16} />
+          Evaluar menú
+        </button>
+
         <p className="text-xs text-center pb-2" style={{ color: "var(--nt-soft)" }}>
           Orientativo. No sustituye a un dietista-nutricionista.
         </p>
@@ -459,6 +475,103 @@ export default function ConstructorPage() {
           </div>
         </div>
       </div>
+
+      {/* Bottom sheet: evaluación del reto */}
+      {mostrarReto && (
+        <>
+          <div
+            className="fixed inset-0 z-[55]"
+            style={{ background: "rgba(0,0,0,0.45)" }}
+            onClick={() => setMostrarReto(false)}
+          />
+          <div
+            className="fixed bottom-0 left-0 right-0 z-[60] flex flex-col rounded-t-2xl"
+            style={{ background: "var(--nt-bg)", maxHeight: "88vh" }}
+          >
+            <div
+              className="flex items-center justify-between px-4 pt-4 pb-3 flex-shrink-0"
+              style={{ borderBottom: "1px solid var(--nt-line)" }}
+            >
+              <div className="flex items-center gap-2">
+                <ClipboardCheck size={18} style={{ color: "var(--nt-mid)" }} />
+                <div className="font-bold text-sm" style={{ color: "var(--nt-dark)" }}>Evalúa tu menú</div>
+              </div>
+              <button onClick={() => setMostrarReto(false)} style={{ color: "var(--nt-soft)" }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="overflow-y-auto flex-1 px-4 py-4 space-y-5">
+              {/* Textarea de justificación */}
+              <div>
+                <label className="text-xs font-semibold block mb-1.5" style={{ color: "var(--nt-dark)" }}>
+                  Justificación del menú
+                </label>
+                <textarea
+                  value={justificacion}
+                  onChange={e => setJustificacion(e.target.value)}
+                  placeholder="Explica por qué has elegido estos alimentos, cómo se adaptan al perfil y qué objetivos nutricionales cubren..."
+                  rows={4}
+                  className="w-full text-sm rounded-xl p-3 outline-none resize-none"
+                  style={{
+                    background: "var(--nt-card)",
+                    border: "1px solid var(--nt-line)",
+                    color: "var(--nt-dark)",
+                  }}
+                />
+                <div
+                  className="text-xs mt-1 text-right"
+                  style={{
+                    color: justificacion.trim().length >= 80
+                      ? "var(--nt-g)"
+                      : justificacion.trim().length >= 20
+                      ? "var(--nt-a)"
+                      : "var(--nt-r)",
+                  }}
+                >
+                  {justificacion.trim().length} caracteres
+                  {justificacion.trim().length < 20
+                    ? " (mínimo 20)"
+                    : justificacion.trim().length < 80
+                    ? " — amplía para verde"
+                    : " ✓"}
+                </div>
+              </div>
+
+              {/* Valoración semáforo */}
+              {retoResult && (
+                <div>
+                  <div className="text-xs font-semibold mb-3" style={{ color: "var(--nt-dark)" }}>Valoración</div>
+                  <div className="space-y-2">
+                    {(["energia", "proteina", "macros", "fibra", "restricciones", "justificacion"] as const).map(k => {
+                      const r = retoResult[k];
+                      const bg = r.luz === "verde" ? "var(--nt-gbg)" : r.luz === "ambar" ? "var(--nt-abg)" : "var(--nt-rbg)";
+                      const fg = r.luz === "verde" ? "var(--nt-g)" : r.luz === "ambar" ? "var(--nt-a)" : "var(--nt-r)";
+                      const etiquetas: Record<string, string> = {
+                        energia: "Energía", proteina: "Proteína", macros: "Grasas",
+                        fibra: "Fibra", restricciones: "Restricciones", justificacion: "Justificación",
+                      };
+                      return (
+                        <div key={k} className="rounded-xl px-3 py-2.5" style={{ background: bg }}>
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: fg }} />
+                            <span className="text-xs font-semibold" style={{ color: fg }}>{etiquetas[k]}</span>
+                          </div>
+                          <p className="text-xs pl-4" style={{ color: "var(--nt-dark)" }}>{r.mensaje}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <p className="text-xs pb-2" style={{ color: "var(--nt-soft)" }}>
+                Orientativo, para adultos sanos. No sustituye a un médico o dietista-nutricionista.
+              </p>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Bottom sheet: selector de alimentos */}
       {selectorAbierto && (
