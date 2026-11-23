@@ -1,5 +1,7 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
+import { ChefHat, ChevronRight } from "lucide-react";
 import { MENUS, MENU_INFO, TIMING, MARATON, type NombreMenu } from "@/data/menus";
 
 type Vista = "plan" | "timing" | "competicion";
@@ -21,9 +23,27 @@ export default function MenusPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 pb-8">
       <h1 className="text-2xl font-bold mb-1" style={{ color: "var(--nt-dark)" }}>Menús deportivos</h1>
-      <p className="text-sm mb-5" style={{ color: "var(--nt-soft)" }}>
+      <p className="text-sm mb-4" style={{ color: "var(--nt-soft)" }}>
         Ejemplos de alimentación adaptados al deporte
       </p>
+
+      {/* Acceso al constructor */}
+      <Link
+        href="/menus/constructor"
+        className="flex items-center justify-between rounded-xl p-4 mb-5"
+        style={{ background: "var(--nt-dark)" }}
+      >
+        <div className="flex items-center gap-3">
+          <ChefHat size={22} style={{ color: "#fff" }} />
+          <div>
+            <div className="font-bold text-sm" style={{ color: "#fff" }}>Constructor de menús</div>
+            <div className="text-xs" style={{ color: "rgba(255,255,255,0.65)" }}>
+              Diseña y valora un menú diario completo
+            </div>
+          </div>
+        </div>
+        <ChevronRight size={18} style={{ color: "rgba(255,255,255,0.65)" }} />
+      </Link>
 
       {/* Selector de vista */}
       <div
