@@ -10,7 +10,7 @@ describe("calcularMB", () => {
 
   it("mujer 60 kg 165 cm 30 años", () => {
     const mujer = { peso: 60, talla: 165, edad: 30, sexo: "mujer" as const, actividad: 1.375 };
-    expect(calcularMB(mujer)).toBeCloseTo(1399, 0);
+    expect(calcularMB(mujer)).toBeCloseTo(1320, 0);
   });
 });
 

@@ -3,8 +3,15 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { ALIMENTOS, GRUPOS, type Alimento } from "@/data/alimentos";
 import { PERFILES, type Perfil } from "@/data/perfiles";
-import { calcNutri, type MenuItem } from "@/lib/constructor";
-import { ChevronLeft, X, Search, Plus, Minus, ChefHat } from "lucide-react";
+import { calcNutri, type MenuItem, type NutriTotal } from "@/lib/constructor";
+import { ChevronLeft, X, Search, Plus, Minus, ChefHat, ChevronDown } from "lucide-react";
+
+const MICROS_REF: { key: keyof NutriTotal; label: string; unit: string; ref: number }[] = [
+  { key: "fe",  label: "Hierro",   unit: "mg", ref: 14 },
+  { key: "ca",  label: "Calcio",   unit: "mg", ref: 800 },
+  { key: "vd",  label: "Vit. D",   unit: "μg", ref: 5 },
+  { key: "b12", label: "Vit. B12", unit: "μg", ref: 2.5 },
+];
 
 type ItemComida = { alimento: Alimento; gramos: number };
 type Slot = { nombre: string; emoji: string; items: ItemComida[] };
@@ -71,6 +78,7 @@ export default function ConstructorPage() {
   const [selectorAbierto, setSelectorAbierto] = useState(false);
   const [busqueda, setBusqueda] = useState("");
   const [grupoFiltro, setGrupoFiltro] = useState("");
+  const [detalle, setDetalle] = useState(false);
 
   function seleccionarPerfil(p: Perfil) {
     setSlots(getSlots(p.comidas).map(([nombre, emoji]) => ({ nombre, emoji, items: [] })));
@@ -302,6 +310,81 @@ export default function ConstructorPage() {
             </div>
           );
         })}
+
+        {/* Botón detalle */}
+        <button
+          onClick={() => setDetalle(d => !d)}
+          className="w-full flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium rounded-xl"
+          style={{ background: "var(--nt-card)", color: "var(--nt-mid)", border: "1px solid var(--nt-line)" }}
+        >
+          <ChevronDown
+            size={14}
+            style={{ transform: detalle ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}
+          />
+          {detalle ? "Ocultar detalle" : "Ver micronutrientes y reparto"}
+        </button>
+
+        {detalle && (
+          <div className="rounded-xl border p-4 space-y-5" style={{ background: "var(--nt-card)", borderColor: "var(--nt-line)" }}>
+            {/* Reparto de kcal por comida */}
+            <div>
+              <div className="text-xs font-semibold mb-2" style={{ color: "var(--nt-dark)" }}>Reparto de kcal por comida</div>
+              <div className="space-y-2">
+                {slots.map((s, si) => {
+                  const kcalSlot = s.items.reduce((acc, it) => acc + (it.alimento.kcal * it.gramos) / 100, 0);
+                  const pct = perfil.kcal_objetivo > 0 ? Math.min(1, kcalSlot / perfil.kcal_objetivo) : 0;
+                  return (
+                    <div key={si}>
+                      <div className="flex justify-between text-xs mb-0.5">
+                        <span style={{ color: "var(--nt-soft)" }}>{s.emoji} {s.nombre}</span>
+                        <span style={{ color: "var(--nt-dark)" }}>
+                          {Math.round(kcalSlot)} kcal · {(pct * 100).toFixed(0)} %
+                        </span>
+                      </div>
+                      <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "var(--nt-line)" }}>
+                        <div
+                          className="h-full rounded-full transition-all duration-300"
+                          style={{ width: `${pct * 100}%`, background: "var(--nt-mid)" }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Micronutrientes clave */}
+            <div>
+              <div className="text-xs font-semibold mb-2" style={{ color: "var(--nt-dark)" }}>Micronutrientes clave</div>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                {MICROS_REF.map(({ key, label, unit, ref }) => {
+                  const val = total[key] as number;
+                  const pct = Math.min(1, val / ref);
+                  const luz = pct >= 0.75 ? "var(--nt-g)" : pct >= 0.4 ? "var(--nt-a)" : "var(--nt-r)";
+                  return (
+                    <div key={key}>
+                      <div className="flex justify-between text-xs mb-0.5">
+                        <span style={{ color: "var(--nt-soft)" }}>{label}</span>
+                        <span style={{ color: "var(--nt-dark)" }}>
+                          {val.toFixed(1)}/{ref} {unit}
+                        </span>
+                      </div>
+                      <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "var(--nt-line)" }}>
+                        <div
+                          className="h-full rounded-full transition-all duration-300"
+                          style={{ width: `${pct * 100}%`, background: luz }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="text-xs mt-3" style={{ color: "var(--nt-soft)" }}>
+                Ref. adulto (NRV UE). Orientativo, para adultos sanos. No sustituye a un médico o dietista-nutricionista.
+              </p>
+            </div>
+          </div>
+        )}
 
         <p className="text-xs text-center pb-2" style={{ color: "var(--nt-soft)" }}>
           Orientativo. No sustituye a un dietista-nutricionista.
