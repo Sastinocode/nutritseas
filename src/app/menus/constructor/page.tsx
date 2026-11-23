@@ -4,7 +4,9 @@ import Link from "next/link";
 import { ALIMENTOS, GRUPOS, type Alimento } from "@/data/alimentos";
 import { PERFILES, type Perfil } from "@/data/perfiles";
 import { calcNutri, semaforo, type MenuItem, type NutriTotal, type SemaforoResult } from "@/lib/constructor";
-import { ChevronLeft, X, Search, Plus, Minus, ChefHat, ChevronDown, ClipboardCheck } from "lucide-react";
+import { calcularObjetivo, FACTORES_ACTIVIDAD } from "@/lib/nutricion";
+import { useNutriStore } from "@/lib/store";
+import { ChevronLeft, X, Search, Plus, Minus, ChefHat, ChevronDown, ClipboardCheck, User } from "lucide-react";
 
 const MICROS_REF: { key: keyof NutriTotal; label: string; unit: string; ref: number }[] = [
   { key: "fe",  label: "Hierro",   unit: "mg", ref: 14 },
@@ -71,6 +73,46 @@ function KcalRing({ kcal, objetivo }: { kcal: number; objetivo: number }) {
   );
 }
 
+function construirPerfilPersonal(
+  nombre: string,
+  peso: number,
+  talla: number,
+  edad: number,
+  sexo: "H" | "M",
+  actividad: number,
+  meta: "mantenimiento" | "deficit" | "superavit",
+  restricciones: string[],
+): Perfil {
+  const sexoCalc: "hombre" | "mujer" = sexo === "H" ? "hombre" : "mujer";
+  const obj = calcularObjetivo({ peso, talla, edad, sexo: sexoCalc, actividad }, meta);
+  const actividadLabel: "ligero" | "moderado" | "alto" =
+    actividad >= 1.725 ? "alto" : actividad >= 1.55 ? "moderado" : "ligero";
+  const objetivoLabel: "rendimiento" | "ganar" | "perder" | "mantener" =
+    meta === "superavit" ? "ganar" : meta === "deficit" ? "perder" : "mantener";
+  const protRango: [number, number] =
+    meta === "deficit" ? [1.8, 2.2] : meta === "superavit" ? [1.6, 2.0] : [1.4, 1.8];
+  return {
+    id: "para-mi",
+    nombre: nombre.trim() || "Mi perfil",
+    titulo: "Tu perfil personal",
+    edad,
+    sexo,
+    peso_kg: peso,
+    altura_cm: talla,
+    actividad: actividadLabel,
+    objetivo: objetivoLabel,
+    bmr: obj.mb,
+    kcal_objetivo: obj.kcal,
+    proteina_g_kg: protRango,
+    grasa_pct: [20, 35],
+    fibra_min_g: 25,
+    restricciones,
+    contexto: "Menú calculado con tus datos personales.",
+    tarea: "Diseña tu menú del día según tu objetivo.",
+    comidas: actividad >= 1.55 ? 5 : 4,
+  };
+}
+
 export default function ConstructorPage() {
   const [perfil, setPerfil] = useState<Perfil | null>(null);
   const [slots, setSlots] = useState<Slot[]>([]);
@@ -81,6 +123,19 @@ export default function ConstructorPage() {
   const [detalle, setDetalle] = useState(false);
   const [justificacion, setJustificacion] = useState("");
   const [mostrarReto, setMostrarReto] = useState(false);
+
+  // "Para mí" — perfil del alumno desde localStorage
+  const perfilAlumno = useNutriStore(s => s.perfil);
+  const setPerfilAlumno = useNutriStore(s => s.setPerfil);
+  const [mostrarFormParaMi, setMostrarFormParaMi] = useState(false);
+  const [pmNombre, setPmNombre] = useState(() => perfilAlumno.nombre);
+  const [pmSexo, setPmSexo] = useState<"H" | "M">(() => perfilAlumno.sexo === "hombre" ? "H" : "M");
+  const [pmPeso, setPmPeso] = useState(() => perfilAlumno.peso?.toString() ?? "");
+  const [pmTalla, setPmTalla] = useState(() => perfilAlumno.talla?.toString() ?? "");
+  const [pmEdad, setPmEdad] = useState(() => perfilAlumno.edad?.toString() ?? "");
+  const [pmActividad, setPmActividad] = useState(() => perfilAlumno.actividad);
+  const [pmMeta, setPmMeta] = useState<"mantenimiento" | "deficit" | "superavit">("mantenimiento");
+  const [pmRestricciones, setPmRestricciones] = useState<string[]>([]);
 
   function seleccionarPerfil(p: Perfil) {
     setSlots(getSlots(p.comidas).map(([nombre, emoji]) => ({ nombre, emoji, items: [] })));
@@ -134,6 +189,15 @@ export default function ConstructorPage() {
     ));
   }
 
+  function handleParaMiSubmit() {
+    const pesoN = parseFloat(pmPeso);
+    const tallaN = parseFloat(pmTalla);
+    const edadN = parseInt(pmEdad, 10);
+    if (!pesoN || !tallaN || !edadN || pesoN < 30 || pesoN > 300 || tallaN < 100 || tallaN > 250 || edadN < 10 || edadN > 100) return;
+    setPerfilAlumno({ nombre: pmNombre, peso: pesoN, talla: tallaN, edad: edadN, sexo: pmSexo === "H" ? "hombre" : "mujer", actividad: pmActividad });
+    seleccionarPerfil(construirPerfilPersonal(pmNombre, pesoN, tallaN, edadN, pmSexo, pmActividad, pmMeta, pmRestricciones));
+  }
+
   // ─── SELECTOR DE PERFIL ──────────────────────────────────────
   if (!perfil) {
     return (
@@ -150,6 +214,182 @@ export default function ConstructorPage() {
         </p>
 
         <div className="space-y-3">
+          {/* ── Tarjeta Para mí ── */}
+          <button
+            onClick={() => setMostrarFormParaMi(m => !m)}
+            className="w-full text-left rounded-xl p-4 border transition-colors"
+            style={{ background: "var(--nt-card)", borderColor: mostrarFormParaMi ? "var(--nt-mid)" : "var(--nt-line)" }}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "var(--nt-light)" }}>
+                <User size={18} style={{ color: "var(--nt-mid)" }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-sm" style={{ color: "var(--nt-dark)" }}>Para mí</div>
+                <div className="text-xs" style={{ color: "var(--nt-soft)" }}>
+                  {perfilAlumno.peso
+                    ? `${perfilAlumno.nombre || "Mi perfil"} · ${perfilAlumno.peso} kg · ${perfilAlumno.edad} años`
+                    : "Introduce tus datos personales"}
+                </div>
+              </div>
+              <ChevronDown size={16} style={{ color: "var(--nt-soft)", transform: mostrarFormParaMi ? "rotate(180deg)" : "none", transition: "transform 0.2s", flexShrink: 0 }} />
+            </div>
+          </button>
+
+          {mostrarFormParaMi && (
+            <div className="rounded-xl border p-4 space-y-4" style={{ background: "var(--nt-card)", borderColor: "var(--nt-line)" }}>
+              {/* Nombre */}
+              <div>
+                <label className="text-xs font-medium block mb-1" style={{ color: "var(--nt-dark)" }}>Nombre</label>
+                <input
+                  type="text"
+                  value={pmNombre}
+                  onChange={e => setPmNombre(e.target.value)}
+                  placeholder="Tu nombre"
+                  className="w-full text-sm rounded-lg px-3 py-2 outline-none"
+                  style={{ background: "var(--nt-bg)", border: "1px solid var(--nt-line)", color: "var(--nt-dark)" }}
+                />
+              </div>
+
+              {/* Sexo + Edad */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium block mb-1" style={{ color: "var(--nt-dark)" }}>Sexo</label>
+                  <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: "var(--nt-line)" }}>
+                    {(["H", "M"] as const).map(s => (
+                      <button
+                        key={s}
+                        onClick={() => setPmSexo(s)}
+                        className="flex-1 py-2 text-xs font-medium"
+                        style={pmSexo === s ? { background: "var(--nt-dark)", color: "#fff" } : { background: "var(--nt-bg)", color: "var(--nt-soft)" }}
+                      >
+                        {s === "H" ? "Hombre" : "Mujer"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs font-medium block mb-1" style={{ color: "var(--nt-dark)" }}>Edad</label>
+                  <input
+                    type="number"
+                    value={pmEdad}
+                    onChange={e => setPmEdad(e.target.value)}
+                    placeholder="años"
+                    min={10} max={99}
+                    className="w-full text-sm rounded-lg px-3 py-2 outline-none"
+                    style={{ background: "var(--nt-bg)", border: "1px solid var(--nt-line)", color: "var(--nt-dark)" }}
+                  />
+                </div>
+              </div>
+
+              {/* Peso + Talla */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium block mb-1" style={{ color: "var(--nt-dark)" }}>Peso (kg)</label>
+                  <input
+                    type="number"
+                    value={pmPeso}
+                    onChange={e => setPmPeso(e.target.value)}
+                    placeholder="kg"
+                    min={30} max={300}
+                    className="w-full text-sm rounded-lg px-3 py-2 outline-none"
+                    style={{ background: "var(--nt-bg)", border: "1px solid var(--nt-line)", color: "var(--nt-dark)" }}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium block mb-1" style={{ color: "var(--nt-dark)" }}>Talla (cm)</label>
+                  <input
+                    type="number"
+                    value={pmTalla}
+                    onChange={e => setPmTalla(e.target.value)}
+                    placeholder="cm"
+                    min={100} max={250}
+                    className="w-full text-sm rounded-lg px-3 py-2 outline-none"
+                    style={{ background: "var(--nt-bg)", border: "1px solid var(--nt-line)", color: "var(--nt-dark)" }}
+                  />
+                </div>
+              </div>
+
+              {/* Actividad */}
+              <div>
+                <label className="text-xs font-medium block mb-1" style={{ color: "var(--nt-dark)" }}>Actividad física</label>
+                <select
+                  value={pmActividad}
+                  onChange={e => setPmActividad(Number(e.target.value))}
+                  className="w-full text-sm rounded-lg px-3 py-2 outline-none"
+                  style={{ background: "var(--nt-bg)", border: "1px solid var(--nt-line)", color: "var(--nt-dark)" }}
+                >
+                  {FACTORES_ACTIVIDAD.map(f => (
+                    <option key={f.value} value={f.value}>{f.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Objetivo */}
+              <div>
+                <label className="text-xs font-medium block mb-1.5" style={{ color: "var(--nt-dark)" }}>Objetivo</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {(["mantenimiento", "deficit", "superavit"] as const).map(key => {
+                    const labels = { mantenimiento: "Mantener", deficit: "Perder grasa", superavit: "Ganar músculo" };
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => setPmMeta(key)}
+                        className="py-1.5 text-xs rounded-lg font-medium"
+                        style={pmMeta === key
+                          ? { background: "var(--nt-dark)", color: "#fff" }
+                          : { background: "var(--nt-bg)", color: "var(--nt-soft)", border: "1px solid var(--nt-line)" }}
+                      >
+                        {labels[key]}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Restricciones */}
+              <div>
+                <label className="text-xs font-medium block mb-1.5" style={{ color: "var(--nt-dark)" }}>Restricciones alimentarias</label>
+                <div className="flex gap-2 flex-wrap">
+                  {["vegetariano", "sin lactosa"].map(r => (
+                    <button
+                      key={r}
+                      onClick={() => setPmRestricciones(prev => prev.includes(r) ? prev.filter(x => x !== r) : [...prev, r])}
+                      className="text-xs px-3 py-1.5 rounded-full font-medium"
+                      style={pmRestricciones.includes(r)
+                        ? { background: "var(--nt-mid)", color: "#fff" }
+                        : { background: "var(--nt-bg)", color: "var(--nt-soft)", border: "1px solid var(--nt-line)" }}
+                    >
+                      {r}
+                    </button>
+                  ))}
+                  {pmRestricciones.length === 0 && (
+                    <span className="text-xs" style={{ color: "var(--nt-soft)" }}>Ninguna</span>
+                  )}
+                </div>
+              </div>
+
+              {/* CTA */}
+              <button
+                onClick={handleParaMiSubmit}
+                className="w-full py-3 text-sm font-semibold rounded-xl"
+                style={{ background: "var(--nt-dark)", color: "#fff" }}
+              >
+                Empezar con mis datos
+              </button>
+              <p className="text-xs" style={{ color: "var(--nt-soft)" }}>
+                Tus datos se guardan solo en este dispositivo (localStorage). Orientativo para adultos sanos.
+              </p>
+            </div>
+          )}
+
+          {/* Divisor */}
+          <div className="flex items-center gap-3 py-1">
+            <div className="flex-1 h-px" style={{ background: "var(--nt-line)" }} />
+            <span className="text-xs" style={{ color: "var(--nt-soft)" }}>o elige un reto</span>
+            <div className="flex-1 h-px" style={{ background: "var(--nt-line)" }} />
+          </div>
+
           {PERFILES.map(p => (
             <button
               key={p.id}
