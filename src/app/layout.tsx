@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Sidebar } from "@/components/nav/Sidebar";
@@ -17,6 +17,15 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "NutriTSEAS – Nutrición Deportiva",
   description: "Aprende nutrición deportiva y suplementación para el ciclo TSEAS",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "NutriTSEAS",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#5B2C6F",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
