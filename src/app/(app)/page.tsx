@@ -62,7 +62,7 @@ export default function HomePage() {
         </p>
         <h1 className="text-2xl font-bold leading-tight mb-1">Come bien, rinde más</h1>
         <p className="text-sm opacity-80">
-          Nutrición deportiva y suplementación para el ciclo TSEAS. Sin registro, sin instalar nada.
+          Nutrición deportiva y suplementación para el ciclo TSEAS.
         </p>
       </div>
 
