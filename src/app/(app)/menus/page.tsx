@@ -1,10 +1,11 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { ChefHat, ChevronRight, Trophy } from "lucide-react";
+import { CalendarDays, ChefHat, ChevronRight, Trophy } from "lucide-react";
 import { MENUS, MENU_INFO, TIMING, MARATON, type NombreMenu } from "@/data/menus";
 import { ModoReto } from "./ModoReto";
 import { ModoPoraMi } from "./ModoPoraMi";
+import { ModoSemana } from "./ModoSemana";
 
 type Vista = "plan" | "timing" | "competicion";
 
@@ -15,7 +16,7 @@ const MENU_CARDS: { nombre: NombreMenu; emoji: string; color: string; bg: string
   { nombre: "Vegetariano", emoji: "🌱", color: "var(--nt-g)", bg: "var(--nt-gbg)" },
 ];
 
-type ModoActivo = "reto" | "para-mi" | null;
+type ModoActivo = "reto" | "para-mi" | "semana" | null;
 
 export default function MenusPage() {
   const [modoActivo, setModoActivo] = useState<ModoActivo>(null);
@@ -43,31 +44,46 @@ export default function MenusPage() {
             ← Volver a ejemplos
           </button>
           <h2 className="text-base font-semibold mb-4" style={{ color: "var(--nt-dark)" }}>
-            {modoActivo === "reto" ? "Modo Reto" : "Para mí"}
+            {modoActivo === "reto" ? "Modo Reto" : modoActivo === "para-mi" ? "Para mí" : "Plan semanal"}
           </h2>
-          {modoActivo === "reto" ? <ModoReto /> : <ModoPoraMi />}
+          {modoActivo === "reto" ? <ModoReto /> : modoActivo === "para-mi" ? <ModoPoraMi /> : <ModoSemana />}
         </div>
       ) : (
         <>
           {/* Tarjetas de modo */}
-          <div className="grid grid-cols-2 gap-3 mb-5">
+          <div className="flex flex-col gap-2 mb-5">
             <button
               onClick={() => setModoActivo("reto")}
-              className="rounded-xl p-4 text-left border"
+              className="flex items-center gap-3 rounded-xl px-4 py-3 text-left border"
               style={{ background: "var(--nt-abg)", borderColor: "var(--nt-a)" }}
             >
-              <Trophy size={20} className="mb-2" style={{ color: "var(--nt-a)" }} />
-              <div className="text-sm font-semibold" style={{ color: "var(--nt-a)" }}>Modo Reto</div>
-              <div className="text-xs mt-0.5" style={{ color: "var(--nt-soft)" }}>Platos de clase · +XP</div>
+              <Trophy size={20} style={{ color: "var(--nt-a)", flexShrink: 0 }} />
+              <div className="flex-1">
+                <div className="text-sm font-semibold" style={{ color: "var(--nt-a)" }}>Modo Reto</div>
+                <div className="text-xs mt-0.5" style={{ color: "var(--nt-soft)" }}>Platos de clase · +10 XP</div>
+              </div>
             </button>
             <button
               onClick={() => setModoActivo("para-mi")}
-              className="rounded-xl p-4 text-left border"
+              className="flex items-center gap-3 rounded-xl px-4 py-3 text-left border"
               style={{ background: "var(--nt-card)", borderColor: "var(--nt-line)" }}
             >
-              <span className="text-xl block mb-1">📋</span>
-              <div className="text-sm font-semibold" style={{ color: "var(--nt-dark)" }}>Para mí</div>
-              <div className="text-xs mt-0.5" style={{ color: "var(--nt-soft)" }}>Mis alimentos · sin XP</div>
+              <span style={{ fontSize: "1.1rem", flexShrink: 0 }}>📋</span>
+              <div className="flex-1">
+                <div className="text-sm font-semibold" style={{ color: "var(--nt-dark)" }}>Para mí</div>
+                <div className="text-xs mt-0.5" style={{ color: "var(--nt-soft)" }}>Mis alimentos · sin XP</div>
+              </div>
+            </button>
+            <button
+              onClick={() => setModoActivo("semana")}
+              className="flex items-center gap-3 rounded-xl px-4 py-3 text-left border"
+              style={{ background: "var(--nt-card)", borderColor: "var(--nt-line)" }}
+            >
+              <CalendarDays size={20} style={{ color: "var(--nt-mid)", flexShrink: 0 }} />
+              <div className="flex-1">
+                <div className="text-sm font-semibold" style={{ color: "var(--nt-dark)" }}>Plan semanal</div>
+                <div className="text-xs mt-0.5" style={{ color: "var(--nt-soft)" }}>7 días · lista de la compra</div>
+              </div>
             </button>
           </div>
 
