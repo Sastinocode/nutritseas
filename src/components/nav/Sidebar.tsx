@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   Home, BookOpen, UtensilsCrossed, FlaskConical, Trophy, GraduationCap, ClipboardList, LayoutDashboard
 } from "lucide-react";
+import { SignOutButton } from "@/components/auth/SignOutButton";
 
 const NAV_BASE = [
   { href: "/",            label: "Inicio",       Icon: Home            },
@@ -20,7 +21,7 @@ const NAV_PROFE_EXTRA = [
   { href: "/clase/panel", label: "Panel de clase", Icon: LayoutDashboard },
 ];
 
-export function Sidebar({ esProfe = false }: { esProfe?: boolean }) {
+export function Sidebar({ esProfe = false, nombre = "" }: { esProfe?: boolean; nombre?: string }) {
   const NAV_ITEMS = esProfe ? [...NAV_BASE, ...NAV_PROFE_EXTRA] : NAV_BASE;
   const pathname = usePathname();
 
@@ -67,9 +68,15 @@ export function Sidebar({ esProfe = false }: { esProfe?: boolean }) {
         })}
       </nav>
 
-      {/* Pie */}
-      <div className="px-5 py-4">
-        <p className="text-[10px] opacity-30 text-white">
+      {/* Pie: usuario + cerrar sesión */}
+      <div className="px-4 pb-4 flex flex-col gap-2">
+        {nombre && (
+          <p className="text-sm font-medium text-white opacity-80 truncate px-1">
+            {nombre}
+          </p>
+        )}
+        <SignOutButton />
+        <p className="text-[10px] opacity-30 text-white mt-1">
           Orientativo. No sustituye a un dietista-nutricionista.
         </p>
       </div>

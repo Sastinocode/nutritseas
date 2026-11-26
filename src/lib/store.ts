@@ -29,6 +29,7 @@ interface NutriStore {
   marcarSeccion: (id: string) => void;
   guardarPuntuacion: (key: keyof Omit<Progreso, "seccionesVistas">, valor: number) => void;
   resetProgreso: () => void;
+  resetAll: () => void;
 }
 
 const perfilInicial: Perfil = {
@@ -76,7 +77,10 @@ export const useNutriStore = create<NutriStore>()(
         })),
 
       resetProgreso: () =>
-        set({ progreso: progresoInicial })
+        set({ progreso: progresoInicial }),
+
+      resetAll: () =>
+        set({ perfil: perfilInicial, progreso: progresoInicial })
     }),
     {
       name: "nutritseas-v1",

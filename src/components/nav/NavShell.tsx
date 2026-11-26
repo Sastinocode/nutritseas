@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { Sidebar } from "./Sidebar"
 import { BottomNav } from "./BottomNav"
+import { UserMenu } from "./UserMenu"
 import { SignOutButton } from "@/components/auth/SignOutButton"
 
 export async function NavShell() {
@@ -14,7 +15,7 @@ export async function NavShell() {
 
   let { data: perfil, error } = await supabase
     .from("perfiles")
-    .select("estado, rol")
+    .select("estado, rol, nombre")
     .eq("id", user.id)
     .maybeSingle()
 
@@ -28,7 +29,7 @@ export async function NavShell() {
       .upsert({ id: user.id, nombre }, { onConflict: "id", ignoreDuplicates: true })
     ;({ data: perfil, error } = await supabase
       .from("perfiles")
-      .select("estado, rol")
+      .select("estado, rol, nombre")
       .eq("id", user.id)
       .maybeSingle())
   }
@@ -78,10 +79,13 @@ export async function NavShell() {
     )
   }
 
+  const nombre = perfil.nombre ?? ""
+
   return (
     <>
-      <Sidebar esProfe={esProfe} />
+      <Sidebar esProfe={esProfe} nombre={nombre} />
       <BottomNav esProfe={esProfe} />
+      <UserMenu nombre={nombre} />
     </>
   )
 }
