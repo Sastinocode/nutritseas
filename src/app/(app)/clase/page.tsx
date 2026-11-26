@@ -57,14 +57,37 @@ export default async function ClasePage() {
 
   const esProfe = perfil?.rol === "profe"
 
+  // ranking_clase solo expone datos públicos (nombre, xp, nivel, racha) de alumnos activos.
   const { data: ranking } = await supabase
-    .from("perfiles")
-    .select("id, nombre, xp, nivel, racha, rol, logros_alumno(logros(icono, nombre))")
-    .eq("estado", "activo")
+    .from("ranking_clase")
+    .select("id, nombre, xp, nivel, racha")
     .order("xp", { ascending: false })
     .limit(50)
 
-  const lista = (ranking ?? []) as unknown as PerfilRanking[]
+  const ids = (ranking ?? []).map((r) => r.id as string)
+  const { data: logrosData } = ids.length
+    ? await supabase
+        .from("logros_alumno")
+        .select("alumno_id, logros(icono, nombre)")
+        .in("alumno_id", ids)
+    : { data: [] }
+
+  const logrosPorAlumno = new Map<string, LogroAlumno[]>()
+  for (const la of (logrosData ?? []) as unknown as (LogroAlumno & { alumno_id: string })[]) {
+    const arr = logrosPorAlumno.get(la.alumno_id) ?? []
+    arr.push({ logros: la.logros })
+    logrosPorAlumno.set(la.alumno_id, arr)
+  }
+
+  const lista: PerfilRanking[] = (ranking ?? []).map((r) => ({
+    id: r.id as string,
+    nombre: r.nombre as string,
+    xp: r.xp as number,
+    nivel: r.nivel as number,
+    racha: r.racha as number,
+    rol: "alumno",
+    logros_alumno: logrosPorAlumno.get(r.id as string) ?? [],
+  }))
   const maxXP = lista[0]?.xp ?? 1
 
   return (
