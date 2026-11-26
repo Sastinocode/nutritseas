@@ -58,6 +58,7 @@ Todas las rutas `/(app)/*` están protegidas por `NavShell` (Server Component): 
 ### Migraciones documentadas
 - `supabase/migrations/0001_estado_actual.sql` – snapshot del estado de la BD (referencia)
 - `supabase/migrations/0002_cerrar_huecos_ranking_y_xp.sql` – refuerzo de ranking y fn_sumar_xp
+- `supabase/migrations/0003_laboratorio.sql` – tablas `platos` y `alimentos_propios` con RLS (Fase 6)
 
 ## Colores del sistema (siempre por variable CSS)
 
