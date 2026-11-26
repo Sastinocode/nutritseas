@@ -111,3 +111,39 @@ export function rangoProteina(objetivo: "mantenimiento" | "deficit" | "superavit
   if (objetivo === "superavit") return [1.6, 2.0];
   return [1.4, 1.8];
 }
+
+export interface CoherenciaResult {
+  ok: boolean;
+  /** kcal calculadas a partir de los macros (4·p + 4·h + 9·g) */
+  kcalCalculada: number;
+  /** desviación relativa respecto a kcalCalculada (0–1) */
+  desviacion: number;
+}
+
+/**
+ * Comprueba que las kcal declaradas de un alimento sean coherentes
+ * con sus macros usando los factores Atwater (4·P + 4·H + 9·G) ± 15 %.
+ *
+ * Alimentos con ≤ 50 kcal se marcan siempre como ok porque los errores
+ * de redondeo a esa escala serían desproporcionados.
+ *
+ * @param kcal  kcal declaradas (por 100 g)
+ * @param p     proteínas en g
+ * @param h     hidratos en g
+ * @param g     grasas en g
+ */
+export function coherenciaEnergetica(
+  kcal: number,
+  p: number,
+  h: number,
+  g: number,
+): CoherenciaResult {
+  const kcalCalculada = 4 * p + 4 * h + 9 * g;
+  if (kcal <= 50) {
+    return { ok: true, kcalCalculada, desviacion: 0 };
+  }
+  const desviacion = kcalCalculada > 0
+    ? Math.abs(kcal - kcalCalculada) / kcalCalculada
+    : 1;
+  return { ok: desviacion <= 0.15, kcalCalculada, desviacion };
+}
