@@ -1,8 +1,10 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { ChefHat, ChevronRight } from "lucide-react";
+import { ChefHat, ChevronRight, Trophy } from "lucide-react";
 import { MENUS, MENU_INFO, TIMING, MARATON, type NombreMenu } from "@/data/menus";
+import { ModoReto } from "./ModoReto";
+import { ModoPoraMi } from "./ModoPoraMi";
 
 type Vista = "plan" | "timing" | "competicion";
 
@@ -13,7 +15,10 @@ const MENU_CARDS: { nombre: NombreMenu; emoji: string; color: string; bg: string
   { nombre: "Vegetariano", emoji: "🌱", color: "var(--nt-g)", bg: "var(--nt-gbg)" },
 ];
 
+type ModoActivo = "reto" | "para-mi" | null;
+
 export default function MenusPage() {
+  const [modoActivo, setModoActivo] = useState<ModoActivo>(null);
   const [vista, setVista] = useState<Vista>("plan");
   const [menuActivo, setMenuActivo] = useState<NombreMenu>("Día de entreno");
 
@@ -27,25 +32,64 @@ export default function MenusPage() {
         Ejemplos de alimentación adaptados al deporte
       </p>
 
-      {/* Acceso al constructor */}
-      <Link
-        href="/menus/constructor"
-        className="flex items-center justify-between rounded-xl p-4 mb-5"
-        style={{ background: "var(--nt-dark)" }}
-      >
-        <div className="flex items-center gap-3">
-          <ChefHat size={22} style={{ color: "#fff" }} />
-          <div>
-            <div className="font-bold text-sm" style={{ color: "#fff" }}>Constructor de menús</div>
-            <div className="text-xs" style={{ color: "rgba(255,255,255,0.65)" }}>
-              Diseña y valora un menú diario completo
-            </div>
-          </div>
+      {/* Modos interactivos */}
+      {modoActivo ? (
+        <div className="mb-5">
+          <button
+            onClick={() => setModoActivo(null)}
+            className="flex items-center gap-1 text-sm mb-4"
+            style={{ color: "var(--nt-soft)" }}
+          >
+            ← Volver a ejemplos
+          </button>
+          <h2 className="text-base font-semibold mb-4" style={{ color: "var(--nt-dark)" }}>
+            {modoActivo === "reto" ? "Modo Reto" : "Para mí"}
+          </h2>
+          {modoActivo === "reto" ? <ModoReto /> : <ModoPoraMi />}
         </div>
-        <ChevronRight size={18} style={{ color: "rgba(255,255,255,0.65)" }} />
-      </Link>
+      ) : (
+        <>
+          {/* Tarjetas de modo */}
+          <div className="grid grid-cols-2 gap-3 mb-5">
+            <button
+              onClick={() => setModoActivo("reto")}
+              className="rounded-xl p-4 text-left border"
+              style={{ background: "var(--nt-abg)", borderColor: "var(--nt-a)" }}
+            >
+              <Trophy size={20} className="mb-2" style={{ color: "var(--nt-a)" }} />
+              <div className="text-sm font-semibold" style={{ color: "var(--nt-a)" }}>Modo Reto</div>
+              <div className="text-xs mt-0.5" style={{ color: "var(--nt-soft)" }}>Platos de clase · +XP</div>
+            </button>
+            <button
+              onClick={() => setModoActivo("para-mi")}
+              className="rounded-xl p-4 text-left border"
+              style={{ background: "var(--nt-card)", borderColor: "var(--nt-line)" }}
+            >
+              <span className="text-xl block mb-1">📋</span>
+              <div className="text-sm font-semibold" style={{ color: "var(--nt-dark)" }}>Para mí</div>
+              <div className="text-xs mt-0.5" style={{ color: "var(--nt-soft)" }}>Mis alimentos · sin XP</div>
+            </button>
+          </div>
 
-      {/* Selector de vista */}
+          {/* Acceso al constructor */}
+          <Link
+            href="/menus/constructor"
+            className="flex items-center justify-between rounded-xl p-4 mb-5"
+            style={{ background: "var(--nt-dark)" }}
+          >
+            <div className="flex items-center gap-3">
+              <ChefHat size={22} style={{ color: "#fff" }} />
+              <div>
+                <div className="font-bold text-sm" style={{ color: "#fff" }}>Constructor de menús</div>
+                <div className="text-xs" style={{ color: "rgba(255,255,255,0.65)" }}>
+                  Diseña y valora un menú diario completo
+                </div>
+              </div>
+            </div>
+            <ChevronRight size={18} style={{ color: "rgba(255,255,255,0.65)" }} />
+          </Link>
+
+          {/* Selector de vista */}
       <div
         className="flex rounded-xl mb-6 p-1"
         style={{ background: "var(--nt-card)", border: "1px solid var(--nt-line)" }}
@@ -203,6 +247,8 @@ export default function MenusPage() {
             Orientativo, para adultos sanos. No sustituye a un médico o dietista-nutricionista.
           </p>
         </div>
+      )}
+        </>
       )}
     </div>
   );
