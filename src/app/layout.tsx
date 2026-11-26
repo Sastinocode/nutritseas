@@ -1,8 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Sidebar } from "@/components/nav/Sidebar";
-import { BottomNav } from "@/components/nav/BottomNav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,7 +26,7 @@ export const viewport: Viewport = {
   themeColor: "#5B2C6F",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="es"
@@ -38,27 +36,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         className="h-full"
         style={{ background: "var(--nt-bg)", color: "var(--nt-ink)" }}
       >
-        {/* Layout: sidebar en escritorio, bottom nav en móvil */}
-        <div className="flex h-full">
-          {/* Sidebar sólo en lg+ */}
-          <Sidebar />
-
-          {/* Área de contenido principal */}
-          <main
-            className="flex-1 overflow-y-auto"
-            style={{
-              /* En móvil: deja espacio para el bottom nav (60px) */
-              paddingBottom: "env(safe-area-inset-bottom, 0px)",
-            }}
-          >
-            <div className="pb-[60px] lg:pb-0">
-              {children}
-            </div>
-          </main>
-        </div>
-
-        {/* Bottom nav sólo en móvil/tablet (<lg) */}
-        <BottomNav />
+        {children}
       </body>
     </html>
   );

@@ -2,19 +2,31 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, BookOpen, UtensilsCrossed, FlaskConical, Trophy, GraduationCap } from "lucide-react";
+import { Home, BookOpen, UtensilsCrossed, FlaskConical, Trophy, GraduationCap, ClipboardList, LayoutDashboard } from "lucide-react";
 
-const NAV_ITEMS = [
+const NAV_ALUMNOS = [
   { href: "/",             label: "Inicio",       Icon: Home           },
   { href: "/aprende",      label: "Aprende",      Icon: BookOpen       },
   { href: "/menus",        label: "Menús",        Icon: UtensilsCrossed},
-  { href: "/suplementos",  label: "Suplementos",  Icon: FlaskConical   },
+  { href: "/suplementos",  label: "Supl.",        Icon: FlaskConical   },
   { href: "/retos",        label: "Retos",        Icon: Trophy         },
+  { href: "/tareas",       label: "Tareas",       Icon: ClipboardList  },
   { href: "/clase",        label: "Clase",        Icon: GraduationCap  },
 ];
 
-export function BottomNav() {
+const NAV_PROFE = [
+  { href: "/",             label: "Inicio",       Icon: Home           },
+  { href: "/aprende",      label: "Aprende",      Icon: BookOpen       },
+  { href: "/menus",        label: "Menús",        Icon: UtensilsCrossed},
+  { href: "/suplementos",  label: "Supl.",        Icon: FlaskConical   },
+  { href: "/retos",        label: "Retos",        Icon: Trophy         },
+  { href: "/tareas",       label: "Tareas",       Icon: ClipboardList  },
+  { href: "/clase/panel",  label: "Panel",        Icon: LayoutDashboard},
+];
+
+export function BottomNav({ esProfe = false }: { esProfe?: boolean }) {
   const pathname = usePathname();
+  const NAV_ITEMS = esProfe ? NAV_PROFE : NAV_ALUMNOS;
 
   return (
     <nav

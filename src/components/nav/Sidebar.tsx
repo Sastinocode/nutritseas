@@ -3,19 +3,25 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Home, BookOpen, UtensilsCrossed, FlaskConical, Trophy, GraduationCap
+  Home, BookOpen, UtensilsCrossed, FlaskConical, Trophy, GraduationCap, ClipboardList, LayoutDashboard
 } from "lucide-react";
 
-const NAV_ITEMS = [
+const NAV_BASE = [
   { href: "/",            label: "Inicio",       Icon: Home            },
   { href: "/aprende",     label: "Aprende",      Icon: BookOpen        },
   { href: "/menus",       label: "Menús",        Icon: UtensilsCrossed },
   { href: "/suplementos", label: "Suplementos",  Icon: FlaskConical    },
   { href: "/retos",       label: "Retos",        Icon: Trophy          },
+  { href: "/tareas",      label: "Tareas",       Icon: ClipboardList   },
   { href: "/clase",       label: "Clase",        Icon: GraduationCap   },
 ];
 
-export function Sidebar() {
+const NAV_PROFE_EXTRA = [
+  { href: "/clase/panel", label: "Panel de clase", Icon: LayoutDashboard },
+];
+
+export function Sidebar({ esProfe = false }: { esProfe?: boolean }) {
+  const NAV_ITEMS = esProfe ? [...NAV_BASE, ...NAV_PROFE_EXTRA] : NAV_BASE;
   const pathname = usePathname();
 
   return (
