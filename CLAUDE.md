@@ -28,6 +28,7 @@ Desplegada en Vercel: `nutritseas.vercel.app`. Supabase proyecto: `ifdjhwprhqwow
 /(app)/tareas              → Tareas con sistema de entregas
 /(app)/clase               → Ranking de la clase (vista clasificación)
 /(app)/clase/panel         → Panel del profe (alumnos, entregas, bloqueos)
+/(app)/laboratorio         → Laboratorio: alimentos propios + creación de platos (4 pestañas)
 ```
 
 Todas las rutas `/(app)/*` están protegidas por `NavShell` (Server Component): redirige a `/auth` si no hay sesión, muestra pantalla de bloqueo si `estado='bloqueado'`.
@@ -59,6 +60,7 @@ Todas las rutas `/(app)/*` están protegidas por `NavShell` (Server Component): 
 - `supabase/migrations/0001_estado_actual.sql` – snapshot del estado de la BD (referencia)
 - `supabase/migrations/0002_cerrar_huecos_ranking_y_xp.sql` – refuerzo de ranking y fn_sumar_xp
 - `supabase/migrations/0003_laboratorio.sql` – tablas `platos` y `alimentos_propios` con RLS (Fase 6)
+- `supabase/migrations/0004_fix_trigger_estado.sql` – permite alumno borrador↔pendiente; solo profe puede aprobar/rechazar
 
 ## Colores del sistema (siempre por variable CSS)
 

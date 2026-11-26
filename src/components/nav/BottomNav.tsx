@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, BookOpen, UtensilsCrossed, FlaskConical, Trophy, GraduationCap, ClipboardList, LayoutDashboard } from "lucide-react";
+import { Home, BookOpen, UtensilsCrossed, FlaskConical, Trophy, GraduationCap, ClipboardList, LayoutDashboard, Microscope } from "lucide-react";
 
 const NAV_ALUMNOS = [
   { href: "/",             label: "Inicio",       Icon: Home           },
   { href: "/aprende",      label: "Aprende",      Icon: BookOpen       },
   { href: "/menus",        label: "Menús",        Icon: UtensilsCrossed},
   { href: "/suplementos",  label: "Supl.",        Icon: FlaskConical   },
+  { href: "/laboratorio",  label: "Lab.",          Icon: Microscope     },
   { href: "/retos",        label: "Retos",        Icon: Trophy         },
   { href: "/tareas",       label: "Tareas",       Icon: ClipboardList  },
   { href: "/clase",        label: "Clase",        Icon: GraduationCap  },
@@ -19,6 +20,7 @@ const NAV_PROFE = [
   { href: "/aprende",      label: "Aprende",      Icon: BookOpen       },
   { href: "/menus",        label: "Menús",        Icon: UtensilsCrossed},
   { href: "/suplementos",  label: "Supl.",        Icon: FlaskConical   },
+  { href: "/laboratorio",  label: "Lab.",          Icon: Microscope     },
   { href: "/retos",        label: "Retos",        Icon: Trophy         },
   { href: "/tareas",       label: "Tareas",       Icon: ClipboardList  },
   { href: "/clase/panel",  label: "Panel",        Icon: LayoutDashboard},

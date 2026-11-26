@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Home, BookOpen, UtensilsCrossed, FlaskConical, Trophy, GraduationCap, ClipboardList, LayoutDashboard
+  Home, BookOpen, UtensilsCrossed, FlaskConical, Trophy, GraduationCap, ClipboardList, LayoutDashboard, Microscope
 } from "lucide-react";
 import { SignOutButton } from "@/components/auth/SignOutButton";
 
@@ -11,8 +11,9 @@ const NAV_BASE = [
   { href: "/",            label: "Inicio",       Icon: Home            },
   { href: "/aprende",     label: "Aprende",      Icon: BookOpen        },
   { href: "/menus",       label: "Menús",        Icon: UtensilsCrossed },
-  { href: "/suplementos", label: "Suplementos",  Icon: FlaskConical    },
-  { href: "/retos",       label: "Retos",        Icon: Trophy          },
+  { href: "/suplementos",  label: "Suplementos",  Icon: FlaskConical    },
+  { href: "/laboratorio",  label: "Laboratorio",  Icon: Microscope      },
+  { href: "/retos",        label: "Retos",        Icon: Trophy          },
   { href: "/tareas",      label: "Tareas",       Icon: ClipboardList   },
   { href: "/clase",       label: "Clase",        Icon: GraduationCap   },
 ];
