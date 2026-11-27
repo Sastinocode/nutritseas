@@ -1,6 +1,7 @@
 "use client"
 export const dynamic = "force-dynamic"
 import { useState, useEffect, useCallback } from "react"
+import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { PREGUNTAS_QUIZ, XP_POR_RESPUESTA, XP_BONUS_PERFECTO, type Pregunta } from "@/data/quiz"
 
@@ -300,10 +301,33 @@ export default function RetosPage() {
     <div className="p-4 max-w-xl mx-auto pb-safe">
       {estado === "idle" && (
         <div className="space-y-6">
+          {/* Tarjeta del juego de estaciones */}
           <div>
-            <h1 className="text-2xl font-bold" style={{ color: "var(--nt-dark)" }}>
-              Quiz de nutrición
+            <h1 className="text-2xl font-bold mb-3" style={{ color: "var(--nt-dark)" }}>
+              Retos
             </h1>
+            <Link
+              href="/retos/estaciones"
+              className="flex items-center gap-3 p-4 rounded-2xl"
+              style={{ background: "var(--nt-card)", border: "1px solid var(--nt-line)" }}
+            >
+              <span className="text-3xl">🏃</span>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold" style={{ color: "var(--nt-dark)" }}>
+                  Reto de las 8 estaciones
+                </p>
+                <p className="text-sm" style={{ color: "var(--nt-soft)" }}>
+                  Dale de comer al deportista · Hasta 60 XP
+                </p>
+              </div>
+              <span style={{ color: "var(--nt-soft)" }}>→</span>
+            </Link>
+          </div>
+
+          <div>
+            <h2 className="text-xl font-bold" style={{ color: "var(--nt-dark)" }}>
+              Quiz de nutrición
+            </h2>
             <p className="text-sm mt-1" style={{ color: "var(--nt-soft)" }}>
               {PREGUNTAS_QUIZ.length} preguntas · Gana XP por cada respuesta correcta
             </p>
