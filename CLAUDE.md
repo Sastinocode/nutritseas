@@ -30,6 +30,7 @@ Desplegada en Vercel: `nutritseas.vercel.app`. Supabase proyecto: `ifdjhwprhqwow
 /(app)/clase/panel         → Panel del profe (alumnos, entregas, bloqueos)
 /(app)/laboratorio         → Laboratorio: alimentos propios + creación de platos (4 pestañas)
 /(app)/retos/laboratorio   → Reto del laboratorio: Modo Reto con platos aprobados (mismo componente que /menus)
+/(app)/plato               → Mi plato: visualización de plato por sectores + pirámide nutricional (Fase 7)
 ```
 
 Todas las rutas `/(app)/*` están protegidas por `NavShell` (Server Component): redirige a `/auth` si no hay sesión, muestra pantalla de bloqueo si `estado='bloqueado'`.

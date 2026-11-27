@@ -1,0 +1,23 @@
+{
+  "_nota": "TODO-profe: distancias y repeticiones de cada estación pendientes de verificación con el reglamento oficial del Reto de las 8 Estaciones. Valores orientativos para el simulador.",
+  "nombre_juego": "Reto de las 8 estaciones",
+  "estaciones": [
+    { "id": "s1", "nombre": "Remo ergómetro", "tipo": "distancia", "valor": 1000, "unidad": "m", "descripcion": "Remar 1000 m a ritmo constante" },
+    { "id": "s2", "nombre": "Farmer carry", "tipo": "distancia", "valor": 200, "unidad": "m", "descripcion": "Recorrer 200 m cargando peso" },
+    { "id": "s3", "nombre": "Sentadillas con saco", "tipo": "repeticiones", "valor": 100, "unidad": "rep", "descripcion": "100 sentadillas con saco de arena" },
+    { "id": "s4", "nombre": "Spiderman walk", "tipo": "distancia", "valor": 200, "unidad": "m", "descripcion": "200 m en posición de lagartija lateral" },
+    { "id": "s5", "nombre": "Press con mancuernas", "tipo": "repeticiones", "valor": 100, "unidad": "rep", "descripcion": "100 repeticiones de press de banca con mancuernas" },
+    { "id": "s6", "nombre": "Burpees", "tipo": "repeticiones", "valor": 100, "unidad": "rep", "descripcion": "100 burpees con salto" },
+    { "id": "s7", "nombre": "Remo con kettlebell", "tipo": "repeticiones", "valor": 100, "unidad": "rep", "descripcion": "100 repeticiones de remo con kettlebell" },
+    { "id": "s8", "nombre": "Carrera final", "tipo": "distancia", "valor": 1000, "unidad": "m", "descripcion": "Carrera de 1000 m para finalizar" }
+  ],
+  "carrera_entre_estaciones": {
+    "_nota": "TODO-profe: distancia de carrera entre estaciones en metros",
+    "valor": 50,
+    "unidad": "m"
+  },
+  "tiempo_estimado_base_minutos": {
+    "_nota": "TODO-profe: tiempo base orientativo en minutos para un participante de nivel medio",
+    "valor": 90
+  }
+}

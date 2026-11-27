@@ -1,0 +1,39 @@
+{
+  "_nota": "TODO-profe: revisar proporciones con recomendaciones dietéticas deportivas oficiales (ACSM, SENC, GSSI). Estos valores son orientativos.",
+  "tipos_dia": {
+    "descanso": {
+      "verduras_fruta": 0.40,
+      "proteina": 0.25,
+      "cereales_tuberculos": 0.25,
+      "grasa_saludable": 0.10
+    },
+    "entreno": {
+      "verduras_fruta": 0.35,
+      "proteina": 0.25,
+      "cereales_tuberculos": 0.30,
+      "grasa_saludable": 0.10
+    },
+    "entreno_exigente": {
+      "verduras_fruta": 0.30,
+      "proteina": 0.25,
+      "cereales_tuberculos": 0.35,
+      "grasa_saludable": 0.10
+    },
+    "competicion": {
+      "verduras_fruta": 0.20,
+      "proteina": 0.20,
+      "cereales_tuberculos": 0.50,
+      "grasa_saludable": 0.10
+    }
+  },
+  "feedback": {
+    "verduras_fruta_bajo": "Te falta verdura o fruta: intenta que llene al menos un tercio del plato",
+    "verduras_fruta_alto": "Tienes muchas verduras; revisa que no falte proteína o cereal",
+    "proteina_bajo": "Poca proteína para el deporte; añade carne, pescado, huevo o legumbre",
+    "proteina_alto": "Exceso de proteína; modera la cantidad y equilibra con cereales",
+    "cereales_tuberculos_bajo": "Faltan hidratos; añade arroz, pasta, pan o patata según el día",
+    "cereales_tuberculos_alto": "Muchos hidratos; asegúrate de que sea un día de entreno exigente o competición",
+    "grasa_saludable_bajo": "Añade un poco de aceite de oliva, aguacate o frutos secos",
+    "grasa_saludable_alto": "Demasiada grasa; controla la cantidad de frutos secos u aceite"
+  }
+}
