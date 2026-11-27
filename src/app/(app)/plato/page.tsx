@@ -12,7 +12,160 @@ import {
   type ItemPlato,
   type SectorKey,
   type Sector,
+  SECTOR_LABELS,
 } from "@/lib/plato"
+
+// ─── PDF export ──────────────────────────────────────────────────────────────
+
+async function exportarPDF(
+  items: ItemPlato[],
+  tipoDia: TipoDia,
+  sectores: Sector[],
+  macros: ReturnType<typeof calcularMacros>,
+  feedback: string[],
+) {
+  const { jsPDF } = await import("jspdf")
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" })
+
+  const W = 210
+  const margin = 16
+  const col = margin
+  let y = 20
+
+  const fecha = new Date().toLocaleDateString("es-ES", {
+    day: "2-digit", month: "long", year: "numeric",
+  })
+
+  // Header
+  doc.setFont("helvetica", "bold")
+  doc.setFontSize(20)
+  doc.setTextColor(30, 30, 30)
+  doc.text("Mi plato", col, y)
+  y += 8
+
+  doc.setFont("helvetica", "normal")
+  doc.setFontSize(10)
+  doc.setTextColor(100, 100, 100)
+  doc.text(`${fecha}  ·  Dia de ${TIPO_DIA_LABELS[tipoDia].toLowerCase()}`, col, y)
+  y += 10
+
+  // Divider
+  doc.setDrawColor(220, 220, 220)
+  doc.line(col, y, W - margin, y)
+  y += 7
+
+  // Sector comparison
+  doc.setFont("helvetica", "bold")
+  doc.setFontSize(11)
+  doc.setTextColor(30, 30, 30)
+  doc.text("Distribucion del plato", col, y)
+  y += 6
+
+  doc.setFont("helvetica", "normal")
+  doc.setFontSize(9)
+  doc.setTextColor(60, 60, 60)
+
+  const totalGramos = items.reduce((s, i) => s + i.gramos, 0)
+  for (const s of sectores) {
+    const rec = Math.round(s.recomendado * 100)
+    const act = totalGramos > 0 ? Math.round(s.actual * 100) : null
+    const label = SECTOR_LABELS[s.key]
+    const actText = act !== null ? `  Real: ${act}%` : "  (sin datos)"
+    doc.text(`${label}  -  Recomendado: ${rec}%${actText}`, col + 2, y)
+    y += 5
+  }
+  y += 4
+
+  // Food list
+  if (items.length > 0) {
+    doc.line(col, y, W - margin, y)
+    y += 6
+    doc.setFont("helvetica", "bold")
+    doc.setFontSize(11)
+    doc.setTextColor(30, 30, 30)
+    doc.text("Alimentos", col, y)
+    y += 6
+
+    doc.setFont("helvetica", "normal")
+    doc.setFontSize(9)
+    doc.setTextColor(60, 60, 60)
+
+    for (const item of items) {
+      const kcalItem = (item.kcal * item.gramos / 100).toFixed(0)
+      doc.text(`${item.nombre}`, col + 2, y)
+      doc.text(`${item.gramos} g   ${kcalItem} kcal`, W - margin - 28, y)
+      y += 5
+      if (y > 260) { doc.addPage(); y = 20 }
+    }
+    y += 4
+  }
+
+  // Macros
+  if (macros.kcal > 0) {
+    doc.line(col, y, W - margin, y)
+    y += 6
+    doc.setFont("helvetica", "bold")
+    doc.setFontSize(11)
+    doc.setTextColor(30, 30, 30)
+    doc.text("Macronutrientes", col, y)
+    y += 6
+
+    doc.setFont("helvetica", "normal")
+    doc.setFontSize(9)
+    doc.setTextColor(60, 60, 60)
+
+    const rows = [
+      ["Energia", `${Math.round(macros.kcal)} kcal`],
+      ["Proteinas", `${macros.p.toFixed(1)} g`],
+      ["Hidratos de carbono", `${macros.c.toFixed(1)} g`],
+      ["Grasas", `${macros.g.toFixed(1)} g`],
+      ["Fibra", `${macros.fib.toFixed(1)} g`],
+      ...(macros.na > 0 ? [["Sodio", `${Math.round(macros.na)} mg`]] : []),
+    ]
+    for (const [k, v] of rows) {
+      doc.text(`${k}`, col + 2, y)
+      doc.text(v, W - margin - 20, y)
+      y += 5
+    }
+    y += 4
+  }
+
+  // Feedback
+  if (feedback.length > 0) {
+    doc.line(col, y, W - margin, y)
+    y += 6
+    doc.setFont("helvetica", "bold")
+    doc.setFontSize(11)
+    doc.setTextColor(30, 30, 30)
+    doc.text("Sugerencias", col, y)
+    y += 6
+
+    doc.setFont("helvetica", "normal")
+    doc.setFontSize(9)
+    doc.setTextColor(60, 60, 60)
+    for (const msg of feedback) {
+      const lines = doc.splitTextToSize(`- ${msg}`, W - margin * 2 - 4)
+      doc.text(lines, col + 2, y)
+      y += lines.length * 5
+      if (y > 260) { doc.addPage(); y = 20 }
+    }
+    y += 4
+  }
+
+  // Disclaimer
+  doc.line(col, y, W - margin, y)
+  y += 6
+  doc.setFont("helvetica", "italic")
+  doc.setFontSize(8)
+  doc.setTextColor(130, 130, 130)
+  const disclaimer = doc.splitTextToSize(
+    "Orientativo, para adultos sanos. No sustituye a un medico o dietista-nutricionista.",
+    W - margin * 2,
+  )
+  doc.text(disclaimer, col, y)
+
+  doc.save(`mi-plato-${tipoDia}-${fecha.replace(/ /g, "-")}.pdf`)
+}
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -289,11 +442,21 @@ export default function PlatoPage() {
   const [items, setItems] = useState<ItemPlato[]>([])
   const [busqueda, setBusqueda] = useState("")
   const [grupoFiltro, setGrupoFiltro] = useState<string | null>(null)
+  const [exportando, setExportando] = useState(false)
 
   const sectores = calcularSectores(items, tipoDia)
   const macros = calcularMacros(items)
   const feedback = generarFeedback(sectores)
   const totalGramos = items.reduce((s, i) => s + i.gramos, 0)
+
+  async function handleExportPDF() {
+    setExportando(true)
+    try {
+      await exportarPDF(items, tipoDia, sectores, macros, feedback)
+    } finally {
+      setExportando(false)
+    }
+  }
 
   function addAlimento(a: Alimento) {
     setItems(prev => [
@@ -331,10 +494,25 @@ export default function PlatoPage() {
 
   return (
     <main className="max-w-2xl mx-auto px-4 pt-4 pb-24 space-y-4">
-      {/* Title */}
-      <h1 className="text-xl font-bold" style={{ color: "var(--nt-dark)" }}>
-        🍽 Mi plato
-      </h1>
+      {/* Title + PDF button */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-bold" style={{ color: "var(--nt-dark)" }}>
+          🍽 Mi plato
+        </h1>
+        <button
+          onClick={handleExportPDF}
+          disabled={exportando || items.length === 0}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-opacity disabled:opacity-40"
+          style={{
+            background: "var(--nt-card)",
+            border: "1px solid var(--nt-line)",
+            color: "var(--nt-dark)",
+          }}
+          title={items.length === 0 ? "Añade alimentos para exportar" : "Descargar PDF"}
+        >
+          {exportando ? "⏳" : "⬇"} PDF
+        </button>
+      </div>
 
       {/* Day type pills */}
       <div className="flex flex-wrap gap-2">
